@@ -2,22 +2,34 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
+
+	"log"
 )
 
 func Execute() {
-	currDir, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
+	dir := "."
+	if len(os.Args) >= 2 {
+		dir = os.Args[1]
 	}
 
-	f, err := os.ReadDir(currDir)
+	fileInfo, err := os.Stat(dir)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		return
 	}
 
-	for _, file := range f {
+	if !fileInfo.IsDir() {
+		fmt.Println(fileInfo.Name())
+		return
+	}
+
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		log.Fatal(os.Stderr, "Error reading directory: %v\n", err)
+	}
+
+	for _, file := range files {
 		fmt.Println(file.Name())
 	}
 }
